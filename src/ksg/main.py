@@ -26,14 +26,10 @@ def stacks(directory):
     # Resolve directory to absolute path
     absolute_dir = directory.resolve()
     
-    template = get_template("stacks.toml")
-    rendered = template.render(
-        directory=str(directory),
-        absolute_directory=str(absolute_dir),
-        directory_name=absolute_dir.name
-    )
-
-    click.echo(rendered)
+    # Get all level 1 child directories that start with "stack-"
+    for child_dir in absolute_dir.iterdir():
+        if child_dir.is_dir() and child_dir.name.startswith("stack-"):
+            single.callback(child_dir)
 
 @cli.command()
 @click.argument('directory', type=click.Path(exists=True, file_okay=False, dir_okay=True))
