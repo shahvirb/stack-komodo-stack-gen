@@ -22,7 +22,10 @@ def cli():
     "directory",
     type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
 )
-def stacks(directory):
+@click.option(
+    "--template", default="single.toml", help="Template file to use for rendering"
+)
+def stacks(directory, template):
     """
     Generate all the stack configurations from a parent directory.
 
@@ -34,14 +37,17 @@ def stacks(directory):
     # Get all level 1 child directories that start with "stack-"
     for child_dir in absolute_dir.iterdir():
         if child_dir.is_dir() and child_dir.name.startswith("stack-"):
-            single.callback(child_dir)
+            single.callback(child_dir, template)
 
 
 @cli.command()
 @click.argument(
     "directory", type=click.Path(exists=True, file_okay=False, dir_okay=True)
 )
-def single(directory):
+@click.option(
+    "--template", default="single.toml", help="Template file to use for rendering"
+)
+def single(directory, template):
     """
     Generate a single stack configuration from a directory.
 
@@ -59,7 +65,7 @@ def single(directory):
     # Check if .git directory exists
     has_git = bool(list(dir_path.glob(".git")))
 
-    template = get_template("single.toml")
+    template = get_template(template)
     rendered = template.render(
         stack_name=stack_name,
         server_name=server_name,
