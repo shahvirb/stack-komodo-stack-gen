@@ -23,9 +23,10 @@ def cli():
     type=click.Path(exists=True, file_okay=False, dir_okay=True, path_type=Path),
 )
 def stacks(directory):
-    """Render the stacks.toml template
+    """
+    Generate all the stack configurations from a parent directory.
 
-    DIRECTORY: Target directory to use in the template (e.g., '.' for current directory)
+    DIRECTORY: parent directory containing all the stack-* dirs
     """
     # Resolve directory to absolute path
     absolute_dir = directory.resolve()
@@ -41,7 +42,11 @@ def stacks(directory):
     "directory", type=click.Path(exists=True, file_okay=False, dir_okay=True)
 )
 def single(directory):
-    """Generate a single stack configuration from a directory."""
+    """
+    Generate a single stack configuration from a directory.
+
+    DIRECTORY: directory containing the single stack files
+    """
     dir_path = Path(directory).resolve()
     stack_name = dir_path.name
     server_name = os.environ.get("HOSTNAME") or os.environ.get(
