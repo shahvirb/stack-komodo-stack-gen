@@ -27,6 +27,11 @@ def cli_options(f):
         default=None,
         help="Override server name (defaults to HOSTNAME or COMPUTERNAME env var)",
     )
+    @click.option(
+        "--output",
+        type=click.Path(path_type=Path),
+        help="Output file to write rendered template (defaults to stdout)",
+    )
     @functools.wraps(f)
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
@@ -42,7 +47,7 @@ def cli():
 
 @cli.command()
 @cli_options
-def stacks(directory, template, server_name):
+def stacks(directory, template, server_name, output):
     """
     Generate all the stack configurations from a parent directory.
 
@@ -51,15 +56,21 @@ def stacks(directory, template, server_name):
     # Resolve directory to absolute path
     absolute_dir = directory.resolve()
 
+    all_rendered = []
     # Get all level 1 child directories that start with "stack-"
-    for child_dir in absolute_dir.iterdir():
-        if child_dir.is_dir() and child_dir.name.startswith("stack-"):
-            single.callback(child_dir, template, server_name)
+    for child_dir in sorted(absolute_dir.glob("stack-*/")):
+        if child_dir.is_dir():
+            rendered = single_rendered(child_dir, template, server_name)
+            all_rendered.append(rendered)
+    
+    combined_output = "\n".join(all_rendered)
+    if output:
+        output.write_text(combined_output)
+    else:
+        click.echo(combined_output)
 
 
-@cli.command()
-@cli_options
-def single(directory, template, server_name):
+def single_rendered(directory, template, server_name):
     """
     Generate a single stack configuration from a directory.
 
@@ -87,8 +98,21 @@ def single(directory, template, server_name):
         op_unpack=op_unpack,
         has_git=has_git,
     )
+    return rendered
 
-    click.echo(rendered)
+@cli.command()
+@cli_options
+def single(directory, template, server_name, output):
+    """
+    Generate a single stack configuration from a directory.
+
+    DIRECTORY: directory containing the single stack files
+    """
+    rendered = single_rendered(directory, template, server_name)
+    if output:
+        output.write_text(rendered)
+    else:
+        click.echo(rendered)
 
 
 if __name__ == "__main__":
