@@ -10,7 +10,7 @@ services:
       - ../src:/app/src:ro
       - ../templates:/app/templates:ro
       # Mount the stacks root dir
-      - ../:/stacks:ro
+      - ../../:/stacks:ro
       # Mount output directory
       - ./output:/output
     command: ["stacks", "/stacks", "--output", "/output/main.toml"]
