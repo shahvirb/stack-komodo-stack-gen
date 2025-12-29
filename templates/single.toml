@@ -9,7 +9,7 @@ run_directory = "/home/shahvirb/gitsource/{{ server_name }}/{{ stack_name }}{% i
 git_provider = "github.com"
 repo = "shahvirb/{{ stack_name }}"
 clone_path = "/home/shahvirb/gitsource/{{ server_name }}/{{ stack_name }}"
-{%- if stack_name == "stack-komodo-stack-gen" %}
+{%- if stack_name in ["stack-komodo-stack-gen", "stack-smbcheck"] %}
 auto_pull = false
 {%- endif %}
 {%- else %}
